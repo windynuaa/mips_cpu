@@ -33,6 +33,10 @@
 `define EXEC_MUL        6'b000010
 `define EXEC_MULT       6'b011000
 `define EXEC_MULTU      6'b011001
+`define EXEC_MADD       6'b000000
+`define EXEC_MADDU      6'b000001
+`define EXEC_MSUB       6'b000100
+`define EXEC_MSUBU      6'b000101
 
 `define EXEC_ADDI       6'b001000
 `define EXEC_ADDIU      6'b001001
@@ -49,8 +53,10 @@
 `define EXEC_OP_NOP     8'b00000000
 ////
 `define EXEC_OP_MOVE    8'b10101010
-`define EXEC_OP_MFTHI   8'b10100110
-`define EXEC_OP_MFTLO   8'b10101001
+`define EXEC_OP_MFHI    8'b10100110
+`define EXEC_OP_MFLO    8'b10101001
+`define EXEC_OP_MTHI    8'b10100110
+`define EXEC_OP_MTLO    8'b10101001
 
 ///
 `define EXEC_OP_AND     8'b00100100
@@ -66,16 +72,25 @@
 `define EXEC_OP_SRA     8'b00000011
 `define EXEC_OP_SRAV    8'b00000111
 //
-`define EXEC_OP_ADD        8'b10000000
-`define EXEC_OP_ADDU       8'b10000100
-`define EXEC_OP_SUB        8'b10001000
-`define EXEC_OP_SUBU       8'b10001100
-`define EXEC_OP_SLT        8'b10101000
-`define EXEC_OP_SLTU       8'b10101100
-`define EXEC_OP_CLZ        8'b10101001
-`define EXEC_OP_CLO        8'b10101101
+`define EXEC_OP_ADD     8'b10000000
+`define EXEC_OP_ADDU    8'b10000100
+`define EXEC_OP_SUB     8'b10001000
+`define EXEC_OP_SUBU    8'b10001100
+`define EXEC_OP_SLT     8'b10101000
+`define EXEC_OP_SLTU    8'b10101100
+`define EXEC_OP_CLZ     8'b10101001
+`define EXEC_OP_CLO     8'b10101101
 //
-
+`define EXEC_OP_MUL     8'b10111101
+`define EXEC_OP_MULT    8'b10101111
+`define EXEC_OP_MULTU   8'b10111100
+`define EXEC_OP_MADD       6'b000000
+`define EXEC_OP_MADDU      6'b000001
+`define EXEC_OP_MSUB       6'b000100
+`define EXEC_OP_MSUBU      6'b000101
+`define EXEC_DIV           6'b000101
+`define EXEC_OP_DIV        6'b000101
+//
 `define EXEC_RES_MOVE   3'b011
 `define EXEC_RES_LOGIC  3'b001
 `define EXEC_RES_NOP    3'b000

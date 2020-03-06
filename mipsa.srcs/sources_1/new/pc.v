@@ -23,6 +23,7 @@
 module pc(
     input clk,
     input rst,
+    input [5:0] stall,
     output [31:0] inst_addr_o,
     output re
     );
@@ -38,8 +39,10 @@ begin
     re_reg <= 0;
     end 
     else begin
-    pc_reg <= pc_reg + 1;
-    re_reg <= 1;
+        re_reg <= 1;
+        if(stall[0]==0)begin
+            pc_reg <= pc_reg + 4;
+        end
     end
   
 

@@ -8,7 +8,7 @@
 // Module Name: mem_wb
 // Project Name: 
 // Target Devices: 
-// Tool Versions: 
+// Tool Versions: vivado2017.4
 // Description: 
 // 
 // Dependencies: 
@@ -26,6 +26,7 @@ module mem_wb(
     input   [31:0]data_i,
     input   [4:0] regw_addr_i,
     input   regw_i,
+     input [5:0] stall,
     output reg  [31:0]data_o,
     output reg  [4:0] regw_addr_o,
     output reg  regw_o,
@@ -54,13 +55,26 @@ always@(posedge clk)
             low_o <=1'b0;
         end
         else begin
-            data_o <= data_i;
-            regw_addr_o <= regw_addr_i;
-            regw_o <= regw_i;
-            hi_o <= hi_i;
-            lo_o <= lo_i;
-            hiw_o <=hiw_i;
-            low_o <=low_i;
-        end
-    end
-    endmodule
+            if(stall[5]==0) begin
+               if(stall[4])begin
+                   data_o <= 32'b0;
+                   regw_addr_o <= 5'b0;
+                   regw_o <= 1'b0;
+                   hi_o <= 32'b0;
+                   lo_o <= 32'b0;
+                   hiw_o <=1'b0;
+                   low_o <=1'b0;
+               end
+               else begin
+                   data_o <= data_i;
+                   regw_addr_o <= regw_addr_i;
+                   regw_o <= regw_i;
+                   hi_o <= hi_i;
+                   lo_o <= lo_i;
+                   hiw_o <=hiw_i;
+                   low_o <=low_i;
+               end
+           end
+       end
+end
+endmodule

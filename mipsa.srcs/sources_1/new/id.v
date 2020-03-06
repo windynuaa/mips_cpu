@@ -49,7 +49,7 @@ module id(
     
     output reg[4:0] regw_addr_o,
     output reg regw,
-    
+    output reg stall_req_id,
     output reg cmd_vaild
     );
 reg [31:0]imm;
@@ -275,7 +275,7 @@ always@(*) begin
                 `EXEC_MFHI:begin //mfhi rd rd-<hi
                     reg1_re <= 1'b0;
                     reg2_re <= 1'b0;
-                    aluop <= `EXEC_OP_MFTHI;
+                    aluop <= `EXEC_OP_MFHI;
                     alusel <= `EXEC_RES_MOVE;
                     regw_addr_o <= inst_i[15:11];
                     regw <= 1'b1;
@@ -284,7 +284,7 @@ always@(*) begin
                 `EXEC_MFLO:begin//mflo rd rd-<lo
                     reg1_re <= 1'b0;
                     reg2_re <= 1'b0;
-                    aluop <= `EXEC_OP_MFTLO;
+                    aluop <= `EXEC_OP_MFLO;
                     alusel <= `EXEC_RES_MOVE;
                     regw_addr_o <= inst_i[15:11];
                     regw <= 1'b1;
@@ -293,7 +293,7 @@ always@(*) begin
                 `EXEC_MTHI:begin//mthi rd hi-<rd
                     reg1_re <= 1'b1;
                     reg2_re <= 1'b0;
-                    aluop <= `EXEC_OP_MFTHI;
+                    aluop <= `EXEC_OP_MTHI;
                     alusel <= `EXEC_RES_MOVE;
                     regw <= 1'b0;
                     cmd_vaild <= opr2==0;
@@ -301,7 +301,7 @@ always@(*) begin
                 `EXEC_MTLO:begin//mtlo rd lo-<rd
                     reg1_re <= 1'b1;
                     reg2_re <= 1'b0;
-                    aluop <= `EXEC_OP_MFTLO;
+                    aluop <= `EXEC_OP_MTLO;
                     alusel <= `EXEC_RES_MOVE;
                     regw <= 1'b0;
                     cmd_vaild <= opr2==0;
@@ -363,6 +363,38 @@ always@(*) begin
             end // exec_special:
             `EXEC_SPECIAL2:begin
                 case(opr3)
+                `EXEC_MADD:begin
+                    reg1_re <= 1'b1;
+                    reg2_re <= 1'b1;
+                    aluop <= `EXEC_OP_MADD;
+                    alusel <= `EXEC_RES_ARITH;
+                    regw <= 1'b0;
+                    cmd_vaild <= 1;
+                end
+                `EXEC_MADDU:begin
+                    reg1_re <= 1'b1;
+                    reg2_re <= 1'b1;
+                    aluop <= `EXEC_OP_MADDU;
+                    alusel <= `EXEC_RES_ARITH;
+                    regw <= 1'b0;
+                    cmd_vaild <= 1;
+                end
+                `EXEC_MSUB:begin
+                    reg1_re <= 1'b1;
+                    reg2_re <= 1'b1;
+                    aluop <= `EXEC_OP_MSUB;
+                    alusel <= `EXEC_RES_ARITH;
+                    regw <= 1'b0;
+                    cmd_vaild <= 1;
+                end
+                `EXEC_MSUBU:begin
+                    reg1_re <= 1'b1;
+                    reg2_re <= 1'b1;
+                    aluop <= `EXEC_OP_MSUBU;
+                    alusel <= `EXEC_RES_ARITH;
+                    regw <= 1'b0;
+                    cmd_vaild <= 1;
+                end
                 `EXEC_CLZ:begin
                     reg1_re <= 1'b1;
                     reg2_re <= 1'b0;
@@ -383,6 +415,16 @@ always@(*) begin
                     regw <= 1'b1;
                     cmd_vaild <= opr2==6'b0;
                 end
+                `EXEC_DIV:begin
+                    reg1_re <= 1'b1;
+                    reg2_re <= 1'b0;
+                    aluop <= `EXEC_OP_DIV;
+                    alusel <= `EXEC_RES_ARITH;
+                    regw_addr_o <= rd;
+                    regw <= 1'b1;
+                    cmd_vaild <= opr2==6'b0;
+                end
+                
                 endcase// CASE OP3                 
             end// EXEC SPECIAL2                   
         endcase//case op

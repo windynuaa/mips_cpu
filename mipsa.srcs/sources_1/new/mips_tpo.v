@@ -75,18 +75,17 @@ module mips_tpo(
  wire [31:0]regw_data_mem0;
  wire [4:0]regw_addr_mem0;
  wire reg_we_mem0; 
- /*
- rom rom0(
-    .re(rom_re),
-    .addr(inst_addr_pc),
-    .data(inst_rom) 
- );
-*/
+//pipeline control
+wire [5:0]stall;
+wire stall_req_id;
+wire stall_req_ex;
+
 assign rom_addr=inst_addr_pc;
 (* keep_hierarchy = "yes" *)
  pc pc0(
     .clk(clk),
     .rst(rst),
+    .stall(stall),
     .re(rom_re),
     .inst_addr_o(inst_addr_pc)
  );   
@@ -94,6 +93,7 @@ assign rom_addr=inst_addr_pc;
 if_id if_id0(
     .clk(clk),
     .rst(rst),
+    .stall(stall),
     .inst_i(rom_data),
     .inst_o(inst_ifid),
     .inst_addr_i(inst_addr_pc),
@@ -106,6 +106,7 @@ if_id if_id0(
 regs reg0(
     .clk(clk),
     .rst(rst),
+    
     .reg1_addr_i(reg1_addr),
     .reg1_re(reg1_re),
     .reg2_addr_i(reg2_addr),
@@ -124,6 +125,7 @@ regs reg0(
 id id0(
     .clk(clk),
     .rst(rst),
+    .stall_req_id(stall_req_id),
     .inst_i(inst_ifid),
     .inst_addr_i(inst_addr_id),
     .reg1_i(reg1_data),
@@ -153,7 +155,7 @@ id id0(
 id_ex id_ex0(
     .clk(clk),
     .rst(rst),
-    
+    .stall(stall),
     .aluop_i(aluop_id),
     .alusel_i(alusel_id),
     .op1_i(op1_id),
@@ -189,6 +191,11 @@ wire low_o_ex;
 wire [`REG_DATA_WIDTH]hi_o_hilo;
 wire [`REG_DATA_WIDTH]lo_o_hilo;
 
+wire [`REG_DATA_WIDTH]mul_temp_o_exmem;
+wire [16:0]cmd_loop_cnt_o_exmem;
+wire [`REG_DATA_WIDTH]mul_temp_o_ex;
+wire [16:0]cmd_loop_cnt_o_ex;
+
 
 ///////////////////
 
@@ -196,7 +203,7 @@ wire [`REG_DATA_WIDTH]lo_o_hilo;
 ex ex0(
     .clk(clk),
     .rst(rst),
-    
+    .stall_req_ex(stall_req_ex),
     .aluop_i(aluop_id_ex),
     .alusel_i(alusel_id_ex),
     .op1_i(op1_id_ex),
@@ -221,14 +228,19 @@ ex ex0(
     .hiw_wb_i(hiw_o_memwb),
     .hi_wb_i(hi_o_memwb),
     .low_wb_i(low_o_memwb),
-    .lo_wb_i(lo_o_memwb)
+    .lo_wb_i(lo_o_memwb),
     ////////
+    .mul_temp_i(mul_temp_o_exmem),
+    .cmd_loop_cnt_i(cmd_loop_cnt_o_exmem),
+    .mul_temp_o(mul_temp_o_ex),
+    .cmd_loop_cnt_o(cmd_loop_cnt_o_ex)
 );
 
 (* keep_hierarchy = "yes" *)
 ex_mem ex_mem0(
     .clk(clk),
     .rst(rst),
+    .stall(stall),
     .data_i(regw_data_ex0),
     .regw_addr_i(regw_addr_ex0),
     .regw_i(reg_we_ex0),
@@ -243,8 +255,12 @@ ex_mem ex_mem0(
     .hi_o(hi_o_exmem),
     .lo_o(lo_o_exmem),
     .hiw_o(hiw_o_exmem),
-    .low_o(low_o_exmem)
-    //
+    .low_o(low_o_exmem),
+    //madd msub
+    .mul_temp_i(mul_temp_o_ex),
+    .cmd_loop_cnt_i(cmd_loop_cnt_o_ex),
+    .mul_temp_o(mul_temp_o_exmem),
+    .cmd_loop_cnt_o(cmd_loop_cnt_o_exmem)
 );
 
 
@@ -258,7 +274,7 @@ mem mem0(
     .data_o(regw_data_mem0),
     .regw_addr_o(regw_addr_mem0),
     .regw_o(reg_we_mem0),
-        //wires HILO
+     //wires HILO
     .hiw_i(hiw_o_exmem),
     .low_i(low_o_exmem),
     .hi_i(hi_o_exmem),
@@ -273,6 +289,7 @@ mem mem0(
 mem_wb mem_wb0(
     .clk(clk),
     .rst(rst),
+    .stall(stall),
     .data_i(regw_data_mem0),
     .regw_addr_i(regw_addr_mem0),
     .regw_i(reg_we_mem0),
@@ -301,4 +318,10 @@ HILO HILO0(
     .lo_o(lo_o_hilo)
 );
 
+CTRL ctrl0(
+    .stall_req_ex(stall_req_ex),
+    .stall_req_id(stall_req_id),
+    .rst(rst),
+    .stall(stall)
+    );
 endmodule
